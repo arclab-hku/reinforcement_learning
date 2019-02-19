@@ -108,9 +108,21 @@ class UAVController(object):
 		if z>=0.35:
 			self.taken_off=True
 		#note that z axis have a hystersis, for the shaking avoidance..
+
+
+		state=self.ros_data.get("state", None)
+		if state is not None:
+			if state.armed==False or state.mode!="OFFBOARD":
+				rospy.logwarn("user interupted! trying to end this episode...")
+				return True
+		else:
+			rospy.logwarn("abnormal state!") # this should not happen....
+			return True
+
 		if self.taken_off and (x<-2.5 or x>2.5 or y<-1.5 or y>1.5 or z<0.25 or z>3):
 			rospy.logwarn("land due to safety constraint! pos:%s" % str((x,y,z)) )
 			return True
+
 		return False
 
 	def local_position_callback(self, data):
@@ -131,7 +143,7 @@ class UAVController(object):
 	def user_control_reset(self):
 		raise NotImplementedError
 	
-	def user_control_end(self):
+	def user_control_end(self,mode="normal"):
 		raise NotImplementedError
 
 	def set_local_position(self,x,y,z):
@@ -185,6 +197,7 @@ class UAVController(object):
 
 			if state != "init" and state!= "wait_signal" and self.is_user_reset():
 				state = "reset"
+				self.user_control_end(mode="force")
 				rospy.loginfo("user reset from the remote controller!")
 
 			if state == "init":
@@ -205,18 +218,19 @@ class UAVController(object):
 					self.user_control_reset()
 
 			elif state == "program":
-				is_done = self.user_control_logic()
-				if self.safety_monitor() or is_done:
+				if self.safety_monitor() or self.user_control_logic():
 					state = "landing"
-
+					
 			elif state == "landing":
 				if not self.landing():
 					rospy.logwarn("error occured in the landing process!")
 					state = "error"
-				else:
-					self.user_control_end()
+				else:		
 					state="finish"
 					rospy.loginfo("Task finished! waiting for user control!")
+
+				if state!="landing":
+					self.user_control_end()
 
 			elif state=="finish":
 				rospy.sleep(0.01)
