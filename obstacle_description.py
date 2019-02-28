@@ -3,6 +3,8 @@ from shapely.geometry import Point
 from shapely import affinity
 from shapely.geometry.polygon import Polygon
 import unittest
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 class wall(object):

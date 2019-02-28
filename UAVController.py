@@ -7,15 +7,18 @@ from geometry_msgs.msg import Twist, Vector3Stamped, Pose, Point, Quaternion, Ve
 from visualization_msgs.msg import MarkerArray, Marker
 from mavros_msgs.srv import CommandBool, SetMode, CommandTOL
 from std_msgs.msg import Header
+from est_local_pos import Estimator_local_position
 import numpy as np
 import tf
 
 class StateMachineError(Exception):
 	pass
 
+
 class UAVController(object):
 	def register(self):
 		self.ros_data = {}
+		self.angular_velocity_estimator=Estimator_local_position()
 		rospy.init_node('UAV_controller')
 		rospy.loginfo("UAV_controller started!")
 		self.local_pos_sub = rospy.Subscriber('mavros/local_position/pose',
@@ -52,6 +55,7 @@ class UAVController(object):
 		self.taken_off=False
 		self.ros_data = {}
 		self.assure_reseted = False
+		self.angular_velocity_estimator.reset()
 		
 
 	def landing(self):
@@ -68,7 +72,7 @@ class UAVController(object):
 		return False
 	
 	def prepare_offboard(self):
-		for i in range(100):
+		for i in range(10):
 			self.set_local_position(0,0,1)
 			rospy.sleep(-1)
 
@@ -119,7 +123,8 @@ class UAVController(object):
 			rospy.logwarn("abnormal state!") # this should not happen....
 			return True
 
-		if self.taken_off and (x<-2.5 or x>2.5 or y<-1.5 or y>1.5 or z<0.25 or z>3):
+		# if self.taken_off and (x<-2.5 or x>2.5 or y<-1.5 or y>1.5 or z<0.25 or z>3):
+		if self.taken_off and (z<0.25 or z>3):
 			rospy.logwarn("land due to safety constraint! pos:%s" % str((x,y,z)) )
 			return True
 
@@ -127,6 +132,8 @@ class UAVController(object):
 
 	def local_position_callback(self, data):
 		self.ros_data["local_position"] = data
+		self.angular_velocity_estimator.append(data)
+		
 
 	def Imu_callback(self, data):
 		self.ros_data["imu"] = data
@@ -175,6 +182,9 @@ class UAVController(object):
 			return (rx,ry,rz)+ rpy_eular
 		else:
 			raise UnboundLocalError
+
+	def parse_angular_velocity_by_local_position(self):
+		return self.angular_velocity_estimator.estimate()
 	
 	def parse_velocity(self):
 		wx=self.ros_data["velocity"].twist.angular.x
@@ -193,9 +203,9 @@ class UAVController(object):
 
 	def run(self):
 		state = "init"
-		while True:
+		while not rospy.is_shutdown():
 
-			if state != "init" and state!= "wait_signal" and self.is_user_reset():
+			if state != "init" and state!="reset" and state!= "wait_signal" and self.is_user_reset():
 				state = "reset"
 				self.user_control_end(mode="force")
 				rospy.loginfo("user reset from the remote controller!")
@@ -220,6 +230,7 @@ class UAVController(object):
 			elif state == "program":
 				if self.safety_monitor() or self.user_control_logic():
 					state = "landing"
+					rospy.loginfo("landing triggered!")
 					
 			elif state == "landing":
 				if not self.landing():
