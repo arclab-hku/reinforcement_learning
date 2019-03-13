@@ -1,12 +1,12 @@
 # REAL FLIGHT VALIDATION
-=========================
+
 this repo contains the XIAO Chenxi's validation framework of his RL algorithm. This framework also facilitates the fast development of PX4 control nodes. Program1.py for the usage demostration. 
 
 Note that the inner coordinate (x,y,z) showed in program2 is in an abnormal axis:
-- [x] x = -x_vicon
-- [x] y = -y_vicon
-- [x] z = z_vicon
-=========================
+* x = -x_vicon
+* y = -y_vicon
+* z = z_vicon
+
 how to run this program at the takeoff location of (-1, -1, 1.4):
 
 ```
