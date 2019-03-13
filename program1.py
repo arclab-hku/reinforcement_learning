@@ -6,7 +6,7 @@ from UAVController import UAVController
 
 class Program1(UAVController):
 	def __init__(self):
-		return super().__init__()
+		return super(Program1, self).__init__()
 
 
 	def user_control_logic(self):

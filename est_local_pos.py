@@ -14,7 +14,7 @@ class Estimator_local_position(deque):
 		self.clear()
 		self.inited=False
 
-	def estimate(self,filter_coff=0.6):
+	def estimate(self,filter_coff=0.5):
 		while len(self)>1:
 			local_position=self.popleft()
 			rx=local_position.pose.position.x

@@ -135,11 +135,12 @@ class PolicyNetwork(nn.Module):
 		return action, log_prob, z, mean, log_std
 		
 	
-	def get_action(self, state):
+	def get_action(self, state, test=False):
 
 		state = torch.FloatTensor(state).unsqueeze(0).to(device)
 		mean, log_std = self.forward(state)
 		std = log_std.exp()
+		if test: std=0
 		
 		normal = Normal(mean, std)
 		z      = normal.sample()

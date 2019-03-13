@@ -8,6 +8,7 @@ from visualization_msgs.msg import MarkerArray, Marker
 from mavros_msgs.srv import CommandBool, SetMode, CommandTOL
 from std_msgs.msg import Header
 from est_local_pos import Estimator_local_position
+from est_local_acc import Estimator_local_acc
 import numpy as np
 import tf
 
@@ -19,6 +20,7 @@ class UAVController(object):
 	def register(self):
 		self.ros_data = {}
 		self.angular_velocity_estimator=Estimator_local_position()
+		self.accelerator_estimator=Estimator_local_acc()
 		rospy.init_node('UAV_controller')
 		rospy.loginfo("UAV_controller started!")
 		self.local_pos_sub = rospy.Subscriber('mavros/local_position/pose',
@@ -56,6 +58,7 @@ class UAVController(object):
 		self.ros_data = {}
 		self.assure_reseted = False
 		self.angular_velocity_estimator.reset()
+		self.accelerator_estimator.reset()
 		
 
 	def landing(self):
@@ -72,9 +75,11 @@ class UAVController(object):
 		return False
 	
 	def prepare_offboard(self):
-		for i in range(10):
-			self.set_local_position(0,0,1)
-			rospy.sleep(-1)
+		if self.ros_data.get("local_position", None) is not None:
+			rx,ry,rz,_,_,_=self.parse_local_position("e")
+			for i in range(10):
+				self.set_local_position(rx,ry,1)
+				rospy.sleep(-1)
 
 	def is_start_ready(self):
 		ret = False
@@ -140,18 +145,22 @@ class UAVController(object):
 
 	def velocity_callback(self, data):
 		self.ros_data["velocity"] = data
+		self.accelerator_estimator.append(data)
 
 	def state_callback(self, data):
 		self.ros_data["state"] = data
+
+	def user_control_init(self):
+		pass# raise NotImplementedError
 
 	def user_control_logic(self):
 		raise NotImplementedError
 
 	def user_control_reset(self):
-		raise NotImplementedError
+		pass# raise NotImplementedError
 	
 	def user_control_end(self,mode="normal"):
-		raise NotImplementedError
+		pass# raise NotImplementedError
 
 	def set_local_position(self,x,y,z):
 		pos = PoseStamped()
@@ -162,7 +171,8 @@ class UAVController(object):
 		pos.header.frame_id = "map"
 		pos.header.stamp = rospy.Time.now()
 		self.pos_setpoint_pub.publish(pos)
-		
+
+
 	def parse_local_position(self, mode="q"):
 		local_position=self.ros_data["local_position"]
 		rx=local_position.pose.position.x
@@ -182,6 +192,9 @@ class UAVController(object):
 			return (rx,ry,rz)+ rpy_eular
 		else:
 			raise UnboundLocalError
+			
+	def parse_accelerate_by_local_vel(self):
+		return self.accelerator_estimator.estimate()
 
 	def parse_angular_velocity_by_local_position(self):
 		return self.angular_velocity_estimator.estimate()
@@ -212,6 +225,7 @@ class UAVController(object):
 
 			if state == "init":
 				self.register()
+				self.user_control_init()
 				state = "reset"
 
 			elif state == "reset":

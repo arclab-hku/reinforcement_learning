@@ -16,6 +16,11 @@ class PID:
         self.ki_debug=0
         self.kd_debug=0
         
+    def set_pid(self,kp=None, ki=None, kd=None):
+        if kp is not None: self.kp=kp
+        if ki is not None: self.ki=ki
+        if kd is not None: self.kd=kd
+        
     def step(self,cur_err):
         if self.init==0:
             self.err=[cur_err,0,0] 
