@@ -10,11 +10,15 @@ class Program1(UAVController):
 
 
 	def user_control_logic(self):
-		self.set_local_position(0,0,2)
+		time,period=rospy.get_time(),5
+		pts=[(-1, -1), (-1, 1), (1, 1), (1, -1)]
+		x,y=pts[int(time/period)%4]
+		self.set_local_position(x,y,2)
 		rospy.sleep(0.01)
-		return False
+		return time-self.start_time>30
 
 	def user_control_reset(self):
+		self.start_time=rospy.get_time()
 		rospy.loginfo("user program reset!")
 
 

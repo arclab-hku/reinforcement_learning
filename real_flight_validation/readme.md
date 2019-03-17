@@ -15,4 +15,10 @@ python program2.py -x -1 -y -1 -z 1.4
 ```
 The hovering position is (1, 1, 1.4) in the vicon axis.
 
+# Program list:
+run_square.py: a demo for running a square
+
+pass_hole.py: RL passing hole
+
+
 
