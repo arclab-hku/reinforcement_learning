@@ -11,14 +11,24 @@ z = z_vicon
 how to run this program by taking off at (-1, -1, 1.4):
 
 ```
-python program2.py -x -1 -y -1 -z 1.4
+python pass_hole.py -x -1 -y -1 -z 1.4
 ```
 The hovering position is (1, 1, 1.4) in the vicon axis.
 
 # Program list:
 run_square.py: a demo for running a square
-
 pass_hole.py: RL passing hole
+
+# Operation
+after starting the program:
+1) arm
+2) switch to offboard
+Then you can see the quadrotor taking off.
+
+# Simulation
+copy iris.sdf to src/Firmware/Tools/sitl_gazebo/models/iris. replace the old file.
+
+
 
 
 
