@@ -27,6 +27,7 @@ Then you can see the quadrotor taking off.
 
 # Simulation
 copy iris.sdf to src/Firmware/Tools/sitl_gazebo/models/iris. replace the old file.
+My gazebo version is 7.0.0. If problems about parsing uav parameters are found, try to do changes to your original iris.sdf according to my version.
 
 # QGC parameter
 In simulation, you can use qgc_param.params as the parameter, which can work together with iris.sdf provided above.
