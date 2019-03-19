@@ -35,5 +35,7 @@ In simulation, you can use qgc_param.params as the parameter, which can work tog
 # Note
 Not px4 firmware of all version can support attitude control. If you find problem about this, try to switch your px4 firmware to other versions!
 
+# errata
+If you have problem setting attitude commands to the quadrotor, see thrust_scaling parameter in your mavros's config file. Check px4_config.yaml for the detail.
 
 
