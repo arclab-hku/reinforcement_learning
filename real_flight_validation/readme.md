@@ -32,4 +32,8 @@ My gazebo version is 7.0.0. If problems about parsing uav parameters are found, 
 # QGC parameter
 In simulation, you can use qgc_param.params as the parameter, which can work together with iris.sdf provided above.
 
+# Note
+Not px4 firmware of all version can support attitude control. If you find problem about this, try to switch your px4 firmware to other versions!
+
+
 
