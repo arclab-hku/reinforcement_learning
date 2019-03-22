@@ -38,4 +38,42 @@ Not px4 firmware of all version can support attitude control. If you find proble
 # errata
 If you have problem setting attitude commands to the quadrotor, see thrust_scaling parameter in your mavros's config file. Check px4_config.yaml for the detail.
 
+# Experiment procedure
+0) calibrate vicon, and then set origin location at the edge of the field.
+
+1) connect wifi 
+2) look up your ip in router, and then:
+
+ssh up@192.168.10.154(?)
+pwd:0000 (pwd of XIAO Chenxi's PC)
+
+3) start mavros:
+roslaunch offb vm.launch
+
+4) door alignment:
+source ~/venv/bin/activate
+roscd real_flight_validation
+python print_location.py
+
+align it to (2.0 0.0 height)
+
+you can set height in program2.py, which is self.height in user_control_reset()
+door's roll should be 20 deg. which is about 0.35 rad
+
+5) start program by my script:
+cd ~
+./hole.sh
+
+an alternative:
+
+source ~/venv/bin/activate
+roscd real_flight_validation
+python program2.py
+
+6) remote control:
+arm + offboard. then you can see the quadrotor taking off.
+
+
+
+ 
 
