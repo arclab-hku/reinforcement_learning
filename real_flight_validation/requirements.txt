@@ -128,6 +128,6 @@ tf2-ros==0.5.19
 topic-tools==1.12.14
 torch==1.0.1.post2
 torchvision==0.2.1
-urllib3==1.24.1
+urllib3==1.24.2
 wrapt==1.11.1
 xacro==1.11.3
