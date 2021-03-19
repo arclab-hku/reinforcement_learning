@@ -41,7 +41,7 @@ mavros==0.26.3
 mccabe==0.6.1
 message-filters==1.12.14
 numpy==1.16.1
-Pillow==5.4.1
+Pillow==8.1.1
 pluginlib==1.11.3
 pyglet==1.3.2
 pylint==1.9.4
